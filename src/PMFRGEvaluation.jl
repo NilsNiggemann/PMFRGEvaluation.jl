@@ -1,7 +1,7 @@
 module PMFRGEvaluation
-using HDF5,Plots,Parameters,LaTeXStrings,SmoothingSplines,DelimitedFiles,Dierckx,RecursiveArrayTools
+using SpinFRGLattices,HDF5,Plots,Parameters,LaTeXStrings,Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools
 
-export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements
+export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys
 
 function deriv(y::AbstractArray,x,order=1) 
     func = Spline1D(x, y, k=3,bc="extrapolate") 
@@ -75,35 +75,109 @@ end
 
 """Fetches key from file for each group and appends results to a list"""
 function readGroupElements(File,key)
-    res = []
     h5open(File,"r") do f
-        res = VectorOfArray([Array(f[string(Group,"/",key)]) for Group in keys(f)])
+        return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
     end
-    return res
+end
+
+function readLastGroupElements(File,key)
+    h5open(File,"r") do f
+        return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
+    end
+end
+
+function h5keys(Filename::String)
+    h5open(Filename,"r") do f
+        return keys(f)
+    end
+end
+
+function plotMaxVertexFlow(Filename,index,xlims = (0.,2.5))
+    h5open(Filename,"r") do f
+        key = keys(f)[index]
+        Lambda = Array(f[key*"/Lambda"])
+        T = Array(f[key*"/T"])
+        MaxVa = maximum( Array(f[key*"/MaxVa"]), dims = 2)
+        MaxVb = maximum( Array(f[key*"/MaxVb"]), dims = 2)
+        MaxVc = maximum( Array(f[key*"/MaxVc"]), dims = 2)
+        pl = plot(Lambda,MaxVa,xlims = xlims,label = L"max(\Gamma_a)",title = "\$T = $T \$",xlabel = L"\Lambda")
+        plot!(Lambda,MaxVb,label = L"max(\Gamma_b)")
+        plot!(Lambda,MaxVc,label = L"max(\Gamma_c)")
+        return pl
+    end
+end
+
+function getChiTRnu(Filename)
+    h5open(Filename,"r") do File
+        T = readGroupElements(Filename,"T")
+        keylist = sortperm(T)
+        Tlen = length(T)
+        k1 = first(keys(File))
+        Chi_nuDims = size( File[k1*"/Chi_nu"][:,:])
+
+        Chi_TRnu = zeros(Tlen,Chi_nuDims...)
+        #write to arrays
+        for (i,key) in enumerate(keys(File))
+            Chi_TRnu[i,:,:] .= File[key*"/Chi_nu"][:,:]
+        end
+        return Chi_TRnu[keylist,:,:]
+    end
+end
+
+function VertexRplot(Filename,index,Lattice)
+    T = readGroupElements(Filename,"T")[index]
+    @unpack Basis,PairList,PairTypes = Lattice
+    @unpack refSites = Basis
+    # R1 = refSites[1]
+    # norm(R) = dist(R1,R,Basis)
+    norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
+    
+    norms = norm.(eachindex(PairList))
+    MaxVa = readLastGroupElements(Filename,"MaxVa")
+    MaxVb = readLastGroupElements(Filename,"MaxVb")
+    MaxVc = readLastGroupElements(Filename,"MaxVc")
+    scatter(norms,MaxVa[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_a)"),xlabel = L"R/a",title = "\$T = $T \$")
+    scatter!(norms,MaxVb[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_b)"))
+    scatter!(norms,MaxVc[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_c)"))
 end
 
 function ReadPMResults(Filename)
-    T = readGroupElements(Filename,"T")
-    # sort values to ascending order in T
-    keylist = sortperm(T)
-    T = T[keylist]
+    h5open(Filename,"r") do File
+        T = readGroupElements(Filename,"T")
+        Tlen = length(T)
+        # sort values to ascending order in T
+        
+        N = only(unique(readGroupElements(Filename,"N")))
+        NLen= 0
+        try
+            NLen = only(unique(readGroupElements(Filename,"NLen")))
+        catch
+            NLen = getNumberFromName(Filename,"NLen")
+        end
+        NUnique = only(unique(readGroupElements(Filename,"NUnique")))
+        #allocate correct memory
+        k1 = first(keys(File))
+        Chidims = size( File[k1*"/Chi"][end,:])
+        gammadims = size( File[k1*"/gamma"][end,:,:])
 
-    fint_Tx = readGroupElements(Filename,"f_int")[end,:,keylist] # read fint for last Value of Lambda and sort
-    fint_T = mean(fint_Tx,dims=1)[1,:] #actual free energy is the average over unique sites
-    Chi_RT = readGroupElements(Filename,"Chi")[end,:,keylist]
-    Chi_TR = permutedims(Chi_RT,(2,1))
-    gamma_xNT = readGroupElements(Filename,"gamma")[end,:,:,keylist]
-    gamma_TxN = permutedims(gamma_xNT,(3,1,2))
-    N = only(unique(readGroupElements(Filename,"N")))
-    NLen= 0
-    try
-        NLen = only(unique(readGroupElements(Filename,"NLen")))
-    catch
-        NLen = getNumberFromName(Filename,"NLen")
+        fint_T = zeros(Tlen)
+        Chi_TR = zeros(Tlen,Chidims...)
+        gamma_TxN = zeros(Tlen,gammadims...)
+        #write to arrays
+        for (i,key) in enumerate(keys(File))
+            fint_T[i] =  mean(File[key*"/f_int"][end,:]) # read fint for last value of Lambda
+            Chi_TR[i,:] .= File[key*"/Chi"][end,:]
+            gamma_TxN[i,:,:] .= File[key*"/gamma"][end,:,:]
+        end
+        #sort according to T
+        keylist = sortperm(T)
+        T = T[keylist]
+        
+        fint_T = fint_T[keylist]
+        Chi_TR = Chi_TR[keylist,:]
+        gamma_TxN = gamma_TxN[keylist,:,:]
+        return Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Array(Chi_TR) ,:gamma_TxN => Array(gamma_TxN) ,:N => N ,:NLen => NLen ,:NUnique => NUnique)
     end
-    NUnique = only(unique(readGroupElements(Filename,"NUnique")))
-        # skip values 
-    return (Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Chi_TR ,:gamma_TxN => gamma_TxN ,:N => N ,:NLen => NLen ,:NUnique => NUnique))
 end
 
 function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.001)
@@ -173,6 +247,35 @@ function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!
     plot!(pl[end],[],[],label = "",xlabel = latexstring(xAxis),xformatter=x->x,size = (500,700),left_margin=20*Plots.px)
     return pl
 end
+
+function Thermoplots_Makie(Results,fig =Figure(resolution = (500,700));xAxis = "T",shape = :circle,kwargs...)
+    @unpack T,f,e,s,c = Results
+    ThermQuantities = (f,e,s,c)
+    # linestyles = (:solid,:dash,:dot,:dashdot)
+    # shapes = (:circle,:rect,:diamond,:cross)
+    # colors = ("blue","red","black","cyan","magenta","green","pink")
+    Labels = [L"f",L"e",L"s",L"c"]
+    x = T
+    if xAxis in ("Beta", "beta","1/T")
+        x = 1 ./T
+        xAxis = "\\beta"
+    end
+    
+    for (i,(obs,lab)) in enumerate(zip(ThermQuantities,Labels))
+        ax = Axis(fig[i,1], xlabel = "", ylabel = lab,ylabelsize = 20)
+        line = lines!(x,obs,kwargs...)
+        points = scatter!(x,obs,lw = 2,shape=shape,xformatter=_->"";kwargs...)
+    end
+    if :label in keys(kwargs)
+        leg = Legend(fig, [[line, points]], [kwargs[:label]])
+        fig[4,1] = leg
+    end
+    # fontsize_theme = Theme(fontsize = 10)
+    # set_theme!(fontsize_theme)
+    trim!(fig.layout)
+    # axislegend()
+    return fig
+end
 function plotgamma_T(Results,iT,pl = plot())
     @unpack N,gamma_TxN = Results
     for x in 1:NUnique
@@ -234,4 +337,16 @@ function cutDataAndRecompute(Results,index1,index2 = 0;kwargs...)
     end
     return GetThermo(fields;kwargs...)
 end
+function stringLatex(args...)
+    res = ""
+    for arg in args
+        if typeof(arg) == LaTeXString
+            res = string(res,"\\ ",arg.s[2:end-1])
+        elseif typeof(arg) == String
+            res = string(res,"\\ ","\\textrm{$arg}")
+        end
+    end
+    return string("\$",res,"\$")
+end
+
 end#module
