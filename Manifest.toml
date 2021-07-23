@@ -165,6 +165,14 @@ git-tree-sha1 = "3cc57ad0a213808473eafef4845a74766242e05f"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.3.1+4"
 
+[[FRGLatticePlotting]]
+deps = ["LaTeXStrings", "Parameters", "Plots", "SpinFRGLattices", "StaticArrays"]
+git-tree-sha1 = "d765611d16f68ee4485def76b7503ff3aca37d31"
+repo-rev = "master"
+repo-url = "../FRGLatticePlotting"
+uuid = "0e1bda0b-f6c0-498b-8522-61e6152bcfb4"
+version = "0.1.0"
+
 [[FixedPointNumbers]]
 deps = ["Statistics"]
 git-tree-sha1 = "335bfdceacc84c5cdf16aadc768aa5ddfc5383cc"

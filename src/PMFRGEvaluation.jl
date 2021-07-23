@@ -1,5 +1,7 @@
 module PMFRGEvaluation
-using SpinFRGLattices,HDF5,Plots,Parameters,LaTeXStrings,Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools
+using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport
+
+@reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,Plots,LaTeXStrings
 
 export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys
 
