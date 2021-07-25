@@ -169,7 +169,7 @@ version = "4.3.1+4"
 deps = ["LaTeXStrings", "Parameters", "Plots", "SpinFRGLattices", "StaticArrays"]
 git-tree-sha1 = "d765611d16f68ee4485def76b7503ff3aca37d31"
 repo-rev = "master"
-repo-url = "../FRGLatticePlotting"
+repo-url = "../FRGLatticePlots"
 uuid = "0e1bda0b-f6c0-498b-8522-61e6152bcfb4"
 version = "0.1.0"
 

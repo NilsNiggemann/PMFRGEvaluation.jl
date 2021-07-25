@@ -94,7 +94,7 @@ function h5keys(Filename::String)
     end
 end
 
-function plotMaxVertexFlow(Filename,index,xlims = (0.,2.5))
+function plotMaxVertexFlow(Filename,index,xlims = (0.,2.5);kwargs...)
     h5open(Filename,"r") do f
         key = keys(f)[index]
         Lambda = Array(f[key*"/Lambda"])
@@ -105,6 +105,7 @@ function plotMaxVertexFlow(Filename,index,xlims = (0.,2.5))
         pl = plot(Lambda,MaxVa,xlims = xlims,label = L"max(\Gamma_a)",title = "\$T = $T \$",xlabel = L"\Lambda")
         plot!(Lambda,MaxVb,label = L"max(\Gamma_b)")
         plot!(Lambda,MaxVc,label = L"max(\Gamma_c)")
+        plot!(;kwargs...)
         return pl
     end
 end
