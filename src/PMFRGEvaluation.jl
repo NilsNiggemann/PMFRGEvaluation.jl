@@ -3,7 +3,7 @@ using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayToo
 
 @reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,Plots,LaTeXStrings
 
-export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys
+export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys,getCorr
 
 function deriv(y::AbstractArray,x,order=1) 
     func = Spline1D(x, y, k=3,bc="extrapolate") 
@@ -127,7 +127,20 @@ function getChiTRnu(Filename)
     end
 end
 
-function VertexRplot(Filename,index,Lattice)
+function getCorr(key,Filename,index,Lattice)
+    groups = h5keys(Filename)
+    @unpack Basis,PairList,PairTypes = Lattice
+    @unpack refSites = Basis
+    # R1 = refSites[1]
+    # norm(R) = dist(R1,R,Basis)
+    norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
+    
+    norms = norm.(eachindex(PairList))
+    corr = abs.(h5read(Filename,string(groups[index],"/",key))[end,:])
+    return norms,corr
+end
+
+function VertexRplot(Filename,index,Lattice;kwargs...)
     T = readGroupElements(Filename,"T")[index]
     @unpack Basis,PairList,PairTypes = Lattice
     @unpack refSites = Basis
@@ -142,8 +155,8 @@ function VertexRplot(Filename,index,Lattice)
     scatter(norms,MaxVa[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_a)"),xlabel = L"R/a",title = "\$T = $T \$")
     scatter!(norms,MaxVb[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_b)"))
     scatter!(norms,MaxVc[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_c)"))
+    plot!(;kwargs...)
 end
-
 function ReadPMResults(Filename)
     h5open(Filename,"r") do File
         T = readGroupElements(Filename,"T")
