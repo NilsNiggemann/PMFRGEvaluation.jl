@@ -119,6 +119,21 @@ function getCorr(key,Filename,index,Lattice)
     return norms,corr
 end
 
+function getCorr_t0(Filename,index,Lattice)
+    groups = h5keys(Filename)
+    @unpack Basis,PairList,PairTypes = Lattice
+    @unpack refSites = Basis
+    # R1 = refSites[1]
+    # norm(R) = dist(R1,R,Basis)
+    norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
+    
+    norms = norm.(eachindex(PairList))
+    chiRnu = h5read(Filename,string(groups[index],"/","Chi_nu"))
+    Chit0 = equalTimeChi(chiRnu)
+    corr = abs.(Chit0)
+    return norms,corr
+end
+
 function getCorr(Direction,key,Filename,index,Lattice)
     @unpack Basis,PairList,PairTypes,pairToInequiv = Lattice
     Rtype = eltype(PairList)
