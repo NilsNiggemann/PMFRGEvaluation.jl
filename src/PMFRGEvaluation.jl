@@ -232,11 +232,11 @@ function cutData(Results,index1,index2 = 0)
 end
 
 """Removes T points and re-computes the derivative"""
-function cutDataAndRecompute(Results,index1,index2 = 0;kwargs...)
+function cutDataAndRecompute(Results,removeinds::Vector;kwargs...)
     @unpack T,fint,Chi_TR,N,NLen,NUnique,gamma_TxN = Results
-    fields = Dict(:T =>T,:fint_Tx => fint,:Chi_TR => Chi_TR,:N => N,:NLen => NLen,:NUnique => NUnique,:gamma_TxN => gamma_TxN)
-
-    slice(x) = x[begin+index1:end-index2,fill(:,ndims(x)-1)...] #slices array along first dim (Temperature)
+    fields = Dict(:T =>T,:fint_T => fint,:Chi_TR => Chi_TR,:N => N,:NLen => NLen,:NUnique => NUnique,:gamma_TxN => gamma_TxN)
+    inds = deleteat!(collect(eachindex(T)),removeinds)
+    slice(x) = x[inds,fill(:,ndims(x)-1)...] #slices array along first dim (Temperature)
     for (key,val) in fields
         if val isa AbstractArray
             fields[key] = slice(val)
