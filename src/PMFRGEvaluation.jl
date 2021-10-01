@@ -3,7 +3,7 @@ using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayToo
 
 @reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,Plots,LaTeXStrings
 
-export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys,getCorr
+export deriv, get_e, get_c, get_e, get_c, getNumberFromName, ReadPMResults, GetThermo, reverseTOrder, PMResults, Thermoplots, plotgamma_T, plotgamma, getHTSE, cutData, cutDataAndRecompute, HTSE_keys,readGroupElements,readLastGroupElements,plotMaxVertexFlow,stringLatex,VertexRplot,getChiTRnu,h5keys,getCorr,getNorms
 
 @with_kw struct PMResults
     T::Vector{Float64}
@@ -106,6 +106,14 @@ function getChiTRnu(Filename)
     end
 end
 
+function getNorms(Lattice)
+    @unpack Basis,PairList,PairTypes = Lattice
+    @unpack refSites = Basis
+    norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
+    
+    norms = norm.(eachindex(PairList))
+    return norms
+end
 function getCorr(key,Filename,index,Lattice)
     groups = h5keys(Filename)
     @unpack Basis,PairList,PairTypes = Lattice
