@@ -155,21 +155,26 @@ function getCorr(Direction,key,Filename,index,Lattice)
     return norms[indices],corr[indices]
 end
 
-function VertexRplot(Filename,index,Lattice;kwargs...)
-    T = readGroupElements(Filename,"T")[index]
+function VertexRplot!(pl,Vertex::AbstractVector,Lattice;kwargs...)
     @unpack Basis,PairList,PairTypes = Lattice
     @unpack refSites = Basis
-    # R1 = refSites[1]
-    # norm(R) = dist(R1,R,Basis)
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
-    
     norms = norm.(eachindex(PairList))
+    scatter!(norms,Vertex;kwargs...)
+end
+
+VertexRplot!(Vertex::AbstractVector,Lattice;kwargs...) = VertexRplot!(current(),Vertex,Lattice;kwargs...)
+
+VertexRplot(Vertex::AbstractVector,Lattice;kwargs...) = VertexRplot!(plot(),Vertex,Lattice;kwargs...)
+
+function VertexRplot(Filename::String,index,Lattice;kwargs...)
+    T = readGroupElements(Filename,"T")[index]
     MaxVa = readLastGroupElements(Filename,"MaxVa")
     MaxVb = readLastGroupElements(Filename,"MaxVb")
     MaxVc = readLastGroupElements(Filename,"MaxVc")
-    scatter(norms,MaxVa[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_a)"),xlabel = L"R/a",title = "\$T = $T \$")
-    scatter!(norms,MaxVb[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_b)"))
-    scatter!(norms,MaxVc[:,index],label = stringLatex(L"max_{s,t,u}(\Gamma_c)"))
+    VertexRplot(MaxVa[:,index],Lattice,label = stringLatex(L"max_{s,t,u}(\Gamma_a)"),xlabel = L"R/a",title = "\$T = $T \$")
+    VertexRplot!(MaxVb[:,index],Lattice,label = stringLatex(L"max_{s,t,u}(\Gamma_b)"))
+    VertexRplot!(MaxVc[:,index],Lattice,label = stringLatex(L"max_{s,t,u}(\Gamma_c)"))
     plot!(;kwargs...)
 end
 function ReadPMResults(Filename)
