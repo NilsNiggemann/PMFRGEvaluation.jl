@@ -57,10 +57,24 @@ function reverseTOrder(T,Arrays...)
     return reorder.((T,Arrays...))
 end
 
-function PMResults(Filename;kwargs...)
-    res = ReadPMResults(Filename)
-    return GetThermo(res;kwargs...)
+function getLambdaDim(Filename)
+    f_ints = readGroupElements(Filename,"f_int")
+    LambdaLs = length.(readGroupElements(Filename,"Lambda"))
+    NUniques = readGroupElements(Filename,"NUnique")
+    dims = size.(f_ints)
+    getindex.(dims,1)
+    if all(getindex.(dims,1) == LambdaLs) && all(getindex.(dims,2) == NUniques)
+        return 1
+    elseif all(getindex.(dims,1) == NUniques) && all(getindex.(dims,2) == LambdaLs)
+        return 2
+    end
+    @error "Lambda Convention inconsistent in file"
+end
 
+function PMResults(Filename;kwargs...)
+    selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(Filename)]
+    res = ReadPMResults(Filename,selecter)
+    return GetThermo(res;kwargs...)
 end
 
 function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!,shape = :circle,kwargs...)

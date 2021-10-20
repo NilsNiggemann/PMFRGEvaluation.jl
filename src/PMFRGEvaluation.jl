@@ -177,7 +177,21 @@ function VertexRplot(Filename::String,index,Lattice;kwargs...)
     VertexRplot!(MaxVc[:,index],Lattice,label = stringLatex(L"max_{s,t,u}(\Gamma_c)"))
     plot!(;kwargs...)
 end
-function ReadPMResults(Filename)
+
+function endOfFirstDim(Arr::AbstractArray)
+    dims = size(Arr)
+    selectdim(Arr,1,dims[begin])
+end
+endOfFirstDim(A::HDF5.Dataset) = endOfFirstDim(Array(A))
+
+function endOfLastDim(Arr::AbstractArray)
+    dims = size(Arr)
+    d = length(dims)
+    selectdim(Arr,d,dims[end])
+end
+endOfLastDim(A::HDF5.Dataset) = endOfLastDim(Array(A))
+
+function ReadPMResults(Filename,selecter=endOfLastDim)
     h5open(Filename,"r") do File
         T = readGroupElements(Filename,"T")
         Tlen = length(T)
@@ -193,17 +207,17 @@ function ReadPMResults(Filename)
         NUnique = only(unique(readGroupElements(Filename,"NUnique")))
         #allocate correct memory
         k1 = first(keys(File))
-        Chidims = size( File[k1*"/Chi"][end,:])
-        gammadims = size( File[k1*"/gamma"][end,:,:])
+        Chidims = size( selecter(File[k1*"/Chi"]))
+        gammadims = size( selecter(File[k1*"/gamma"]))
 
         fint_T = zeros(Tlen)
         Chi_TR = zeros(Tlen,Chidims...)
         gamma_TxN = zeros(Tlen,gammadims...)
         #write to arrays
         for (i,key) in enumerate(keys(File))
-            fint_T[i] =  mean(File[key*"/f_int"][end,:]) # read fint for last value of Lambda
-            Chi_TR[i,:] .= File[key*"/Chi"][end,:]
-            gamma_TxN[i,:,:] .= File[key*"/gamma"][end,:,:]
+            fint_T[i] =  mean(selecter(File[key*"/f_int"])) # read fint for last value of Lambda
+            Chi_TR[i,:] .= selecter(File[key*"/Chi"])
+            gamma_TxN[i,:,:] .= selecter(File[key*"/gamma"])
         end
         #sort according to T
         keylist = sortperm(T)
