@@ -99,7 +99,7 @@ function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!
         method(pl[i],x,obs,ylabel = lab,xlabel = "",shape=shape,xformatter=_->"",top_margin = -20*Plots.px,xlims =  [0,maximum(x)];kwargs...,label = legendLabel[i])
     end
     # plot!(pl[1],,legend = true;kwargs...)
-    plot!(pl[end],[],[],label = "",xlabel = latexstring(xAxis),xformatter=x->round(x,digits=3),size = (500,700),left_margin=20*Plots.px)
+    plot!(pl[end],label = "",xlabel = latexstring(xAxis),xformatter=x->round(x,digits=3),size = (500,700),left_margin=20*Plots.px)
     return pl
 end
 
