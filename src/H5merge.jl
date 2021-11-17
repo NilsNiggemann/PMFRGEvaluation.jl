@@ -13,9 +13,10 @@ end
 function getSourceFilesWith(key::String,Dir::String)
     Dir .* filter!(x -> occursin(key,x), readdir(Dir))
 end
-Files = getSourceFilesWith("(v_","/storage/niggeni/PMFRG_Results/Octochlore_NLen=10/")
+Files = getSourceFilesWith("N=32.h5","/storage/niggeni/PMFRG_Results/Triangular/")
 for f in Files
-    H5Merge("/storage/niggeni/PMFRG_Results/Octochlore_NLen=10/Octochlore_NLen=10_N=32_a_OneLoop.h5",f)
+    newf = first(split(f,".h5"))*"_l_1.h5"
+    H5Merge(newf,f)
 end
 ##
 rm.(Files)
