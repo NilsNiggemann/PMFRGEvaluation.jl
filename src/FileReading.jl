@@ -39,6 +39,12 @@ function readGroupElements(File,key)
     end
 end
 
+function ArrayReadGroupElements(File,key)
+    Data = readGroupElements(File,key)
+    d = size(first(Data)) |> length
+    return cat(Data...,dims = d+1)
+end
+
 function readLastGroupElements(File,key)
     h5open(File,"r") do f
         return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
@@ -61,6 +67,20 @@ function getMaxVertexFlow(Filename,index,RDim = 1)
         MaxVc = maximum( Array(f[key*"/MaxVc"]), dims = RDim) |> vec
         return (T=T,Lambda = Lambda,MaxVa=MaxVa,MaxVb=MaxVb,MaxVc=MaxVc )
     end
+end
+
+"""returns susceptibility at the value of Lambda where chi(R,Lam) is largest. Assumes that this point will be the position of a peak of the full susceptibility"""
+function getMaxChiTR(Filename)
+    Chi_RLam_T = readGroupElements(Filename,"Chi")
+    TLen = length(Chi_RLam_T)
+    NPairs = size(first(Chi_RLam_T),1)
+    Chi_TR = Matrix{Float64}(undef,TLen,NPairs)
+    for (iT,chiRL) in enumerate(Chi_RLam_T)
+        maxR,MaxLam = Tuple(argmax(chiRL)) #gets position of global(!) maximum
+        # println(length.((Chi_TR[iT,:], chiRL[:,MaxLam])))
+        Chi_TR[iT,:] .= @view chiRL[:,MaxLam]
+    end
+    return Chi_TR
 end
 
 function getChiTRnu(Filename)
@@ -143,20 +163,22 @@ function endOfLastDim(Arr::AbstractArray)
 end
 endOfLastDim(A::HDF5.Dataset) = endOfLastDim(Array(A))
 
+getOnly(Filename,key) =only(unique(readGroupElements(Filename,key)))
+
 function ReadPMResults(Filename,selecter=endOfLastDim)
     h5open(Filename,"r") do File
         T = readGroupElements(Filename,"T")
         Tlen = length(T)
         # sort values to ascending order in T
         
-        N = only(unique(readGroupElements(Filename,"N")))
+        N = getOnly(Filename,"N")
         NLen= 0
         try
-            NLen = only(unique(readGroupElements(Filename,"NLen")))
+            NLen = getOnly(Filename,"NLen")
         catch
             NLen = getNumberFromName(Filename,"NLen")
         end
-        NUnique = only(unique(readGroupElements(Filename,"NUnique")))
+        NUnique = getOnly(Filename,"NUnique")
         #allocate correct memory
         k1 = first(keys(File))
         Chidims = size( selecter(File[k1*"/Chi"]))
