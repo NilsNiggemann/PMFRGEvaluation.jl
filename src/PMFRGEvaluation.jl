@@ -19,7 +19,7 @@ export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
 end
 
 include("FileReading.jl")
-export getNumberFromName, ReadPMResults, GetThermo,readGroupElements,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms, ArrayReadGroupElements
+export getNumberFromName, ReadPMResults, GetThermo,readGroupElements,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms, ArrayReadGroupElements, allOccurIn, NameFilter, OnlyIndex
 
 include("Thermodynamics.jl")
 export deriv, get_e, get_c, get_e, get_c, reverseTOrder,getHTSE,HTSE_keys

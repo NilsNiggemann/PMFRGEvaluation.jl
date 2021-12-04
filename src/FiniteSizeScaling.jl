@@ -1,10 +1,10 @@
 using Roots
-
+const SO3ETA = 0.035
 function rescale(Chi,NLen,eta) 
     Chi ./(NLen^(2-eta))
 end
 
-function getChiIntPol(kmax::StaticArray,Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice,eta= 0.04)
+function getChiIntPol(kmax::StaticArray,Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice;eta= SO3ETA)
     Chik = getFlow(kmax,Chi_TR, T,Lattice)
     Chik_res = rescale(Chik,NLen,eta)
     return Dict(
@@ -18,16 +18,16 @@ function getChiIntPol(kmax::StaticArray,Chi_TR::AbstractMatrix,T::AbstractVector
     )
 end
 
-getChiIntPol(kmax::StaticArray,Res::PMResults,Lattice,eta= 0.04) = getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice,eta)
+getChiIntPol(kmax::StaticArray,Res::PMResults,Lattice,eta= SO3ETA) = getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 
-function getChiIntPol(Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice,RegionFunc::Function,eta= 0.04;kwargs...)
+function getChiIntPol(Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice,RegionFunc::Function;eta= SO3ETA,kwargs...)
     kmax = getkMax(Chi_TR[1,:],Lattice,RegionFunc;kwargs...)
-    getChiIntPol(kmax,Chi_TR,T,NLen,Lattice,eta)
+    getChiIntPol(kmax,Chi_TR,T,NLen,Lattice;eta=eta)
 end
 
-function getChiIntPol(Res::PMResults,Lattice,RegionFunc::Function,eta= 0.04;kwargs...)
+function getChiIntPol(Res::PMResults,Lattice,RegionFunc::Function;eta = SO3ETA,kwargs...)
     kmax = getkMax(Res.Chi_TR[1,:],Lattice,RegionFunc;kwargs...)
-    getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice,eta)
+    getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 end
 
 function getIntersect(f1,f2,guess)

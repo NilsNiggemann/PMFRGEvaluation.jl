@@ -1,3 +1,8 @@
+##
+allOccurIn(name,args...) = all((occursin(arg,name) for arg in args))
+NameFilter(names,args...) = findall(x->allOccurIn(x,args...),names)
+OnlyIndex(names,args...) = only(NameFilter(names,args...))
+
 function getNumberFromName(Name,subName)
     res_string = split(Name,subName*"=")[end]
     for i in length(res_string):-1:1
@@ -100,6 +105,8 @@ function getChiTRnu(Filename)
     end
 end
 
+areParallel(v1::AbstractVector,v2::AbstractVector) =  isapprox(norm(v1)*norm(v2),abs(v1' * v2),atol = 1E-14)
+
 function getNorms(Lattice)
     @unpack Basis,PairList,PairTypes = Lattice
     @unpack refSites = Basis
@@ -117,8 +124,23 @@ function getCorr(key,Filename,index,Lattice)
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
     
     norms = norm.(eachindex(PairList))
-    corr = abs.(h5read(Filename,string(groups[index],"/",key))[end,:])
+    corr = abs.(h5read(Filename,string(groups[index],"/",key))[:,end])
     return norms,corr
+end
+function getCorr(Direction,key,Filename,index,Lattice)
+    @unpack Basis,SiteList,PairList,PairTypes,pairToInequiv = Lattice
+    cartDirection = Direction' *inv(Basis.T) |> vec
+    inDirection(x) = areParallel(cartDirection,x)
+    # println(cartDirection)
+    # println(getCartesian.(SiteList,Ref(Basis)))
+    SiteInds = findall(inDirection,getCartesian.(SiteList,Ref(Basis)))
+    Rvecs = SiteList[SiteInds]
+    Ineq_Rvecs = unique(last.(pairToInequiv.(Ref(Basis.refSites[1]),Rvecs)))
+    println(getCartesian.(Ineq_Rvecs,Ref(Basis)))
+    norms,corr = getCorr(key,Filename,index,Lattice)
+    indices = findall(x-> x in Ineq_Rvecs,PairList)
+    # println(Rvecs,Ineq_Rvecs,indices)
+    return norms[indices],corr[indices]
 end
 
 function getCorr_t0(Filename,index,Lattice)
@@ -135,20 +157,6 @@ function getCorr_t0(Filename,index,Lattice)
     corr = abs.(Chit0)
     return norms,corr
 end
-
-function getCorr(Direction,key,Filename,index,Lattice)
-    @unpack Basis,PairList,PairTypes,pairToInequiv = Lattice
-    Rtype = eltype(PairList)
-    Rfields = fieldnames(Rtype)
-    maxLength = Lattice.NLen
-    Rvecs = [Rvec((i .* Direction)...,Basis.refSites[1].b) for i in 0:maxLength]
-    Ineq_Rvecs = last.(pairToInequiv.(Ref(Basis.refSites[1]),Rvecs))
-    norms,corr = getCorr(key,Filename,index,Lattice)
-    indices = findall(x-> x in Ineq_Rvecs,PairList)
-    # println(Rvecs,Ineq_Rvecs,indices)
-    return norms[indices],corr[indices]
-end
-
 
 function endOfFirstDim(Arr::AbstractArray)
     dims = size(Arr)
@@ -203,3 +211,4 @@ function ReadPMResults(Filename,selecter=endOfLastDim)
         return Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Array(Chi_TR) ,:gamma_TxN => Array(gamma_TxN) ,:N => N ,:NLen => NLen ,:NUnique => NUnique)
     end
 end
+
