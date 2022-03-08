@@ -1,13 +1,21 @@
-function H5Merge(target::String,origin::String)
+function HDF5.h5write(filename::String,Group::String,Data::Dict)
+    for (key,val) in Data
+        h5write(filename,Group*"/"*key,val)
+    end
+end
+HDF5.h5write(filename::String,Data::Dict) = HDF5.h5write(filename::String,"",Data::Dict)
+
+function H5Merge(target::String,origin::String,Groups=h5keys(origin))
     h5open(origin,"r") do f
-        for i in keys(f)
-            for j in keys(f[i])
-                keystr = "$i/$j"
-                h5write(target,keystr,Array(f[keystr]))
+        for key in Groups
+            data = read(f[key])
+            try
+                h5write(target,key,data)
+            catch e
+                @warn "Merging of field $key errored with exception :\n $e "
             end
         end
     end
-    
 end
 
 function getSourceFilesWith(key::String,Dir::String)
