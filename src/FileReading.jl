@@ -1,7 +1,8 @@
 ##
 allOccurIn(name,args...) = all((occursin(arg,name) for arg in args))
-NameFilter(names,args...) = findall(x->allOccurIn(x,args...),names)
-OnlyIndex(names,args...) = only(NameFilter(names,args...))
+findNames(names,args...) = findall(x->allOccurIn(x,args...),names)
+NameFilter(names,args...) = filter(x->allOccurIn(x,args...),names)
+OnlyIndex(names,args...) = only(findNames(names,args...))
 
 function getNumberFromName(Name,subName)
     res_string = split(Name,subName*"=")[end]
