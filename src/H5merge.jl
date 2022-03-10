@@ -5,7 +5,7 @@ function HDF5.h5write(filename::String,Group::String,Data::Dict)
 end
 HDF5.h5write(filename::String,Data::Dict) = HDF5.h5write(filename::String,"",Data::Dict)
 
-function H5Merge(target::String,origin::String,Groups=h5keys(origin))
+function h5Merge(target::String,origin::String,Groups=h5keys(origin))
     h5open(origin,"r") do f
         for key in Groups
             data = read(f[key])
@@ -21,10 +21,3 @@ end
 function getSourceFilesWith(key::String,Dir::String)
     Dir .* filter!(x -> occursin(key,x), readdir(Dir))
 end
-Files = getSourceFilesWith("N=32.h5","/storage/niggeni/PMFRG_Results/Triangular/")
-for f in Files
-    newf = first(split(f,".h5"))*"_l_1.h5"
-    H5Merge(newf,f)
-end
-##
-rm.(Files)
