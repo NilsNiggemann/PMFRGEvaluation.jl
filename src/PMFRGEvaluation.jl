@@ -1,7 +1,7 @@
 module PMFRGEvaluation
 using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport
 
-@reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,Plots,LaTeXStrings
+@reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,LaTeXStrings
 
 export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
 @with_kw struct PMResults

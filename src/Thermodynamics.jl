@@ -21,7 +21,7 @@ function get_c(f::AbstractArray,T::AbstractArray)
     return( -T .* deriv(f,T,2))
 end
 
-function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.001)
+function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.001,SplineDegree = 3)
 
     T,fint_T,Chi_TR,gamma_TxN,N,NLen,NUnique = getindex.(Ref(PMData),(:T,:fint_T,:Chi_TR,:gamma_TxN,:N,:NLen,:NUnique))
 
@@ -34,6 +34,10 @@ function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.00
     e_T = similar(fint_T)
     c_T = similar(fint_T)
     s_T = similar(fint_T)
+    
+    if length(T) < SplineDegree
+        return PMResults(T=T,N = N, NLen = NLen, NUnique = NUnique, Chi_TR=Chi_TR,gamma_TxN=gamma_TxN,fint=fint_T,f=fint_T,e=e_T,c=c_T,s=s_T)
+    end
     # smooth Data for f:
     if smoothen
         spl = fit(SmoothingSpline, T, fint_T, smoothParam) # smoothing parameter low means less smoothing
@@ -41,7 +45,7 @@ function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.00
     end
     f = -T*log(2) +fint_T
     # f_intPol = intpol(fint_T,T)
-    f_intPol = Spline1D(T, f, k=3,bc="extrapolate") 
+    f_intPol = Spline1D(T, f, k=SplineDegree,bc="extrapolate") 
     # return f_intPol
     for (iT,Temp) in enumerate(T)
         e_T[iT] = get_e(f_intPol,Temp)
