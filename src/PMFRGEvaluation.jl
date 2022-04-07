@@ -19,7 +19,7 @@ export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
 end
 
 include("FileReading.jl")
-export getNumberFromName, ReadPMResults, GetThermo,readGroupElements,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms, ArrayReadGroupElements, allOccurIn, NameFilter,findNames, OnlyIndex
+export ReadPMResults, GetThermo,readGroupElements,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms, ArrayReadGroupElements
 
 include("Thermodynamics.jl")
 export deriv, get_e, get_c, get_e, get_c, reverseTOrder,getHTSE,HTSE_keys
@@ -28,7 +28,7 @@ include("FiniteSizeScaling.jl")
 export getChiIntPol,getCrossingPoint
 
 include("PlotFunctions.jl")
-export plotgamma_T, plotgamma,plotMaxVertexFlow,stringLatex,VertexRplot
+export plotgamma_T, plotgamma,plotMaxVertexFlow,VertexRplot
 
 include("H5Merge.jl")
 export h5write,h5Merge,getSourceFilesWith

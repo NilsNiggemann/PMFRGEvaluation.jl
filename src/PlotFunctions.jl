@@ -44,14 +44,3 @@ function plotgamma(Results,x=1,Nmax=size(Results.gamma_TxN,3))
     surface(1:Nmax,T,gamma_TxN[:,x,1:Nmax],zlabel = L"\gamma",ylabel=L"T",xlabel = L"N",label = nothing,c= colorscheme)
 end
 
-function stringLatex(args...)
-    res = ""
-    for arg in args
-        if typeof(arg) == LaTeXString
-            res = string(res,"\\ ",arg.s[2:end-1])
-        elseif typeof(arg) == String
-            res = string(res,"\\ ","\\textrm{$arg}")
-        end
-    end
-    return string("\$",res,"\$")
-end

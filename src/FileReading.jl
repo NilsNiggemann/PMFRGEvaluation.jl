@@ -1,19 +1,3 @@
-##
-allOccurIn(name,args...) = all((occursin(arg,name) for arg in args))
-findNames(names,args...) = findall(x->allOccurIn(x,args...),names)
-NameFilter(names,args...) = filter(x->allOccurIn(x,args...),names)
-OnlyIndex(names,args...) = only(findNames(names,args...))
-
-function getNumberFromName(Name,subName)
-    res_string = split(Name,subName*"=")[end]
-    for i in length(res_string):-1:1
-        N = tryparse(Int,res_string[1:i])
-        if N !== nothing
-            return N
-        end
-    end
-    error("Could not get ", subName, "from string ",Name)
-end
 
 function ReadPMResults_old(Filename)
 

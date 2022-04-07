@@ -30,6 +30,11 @@ function getChiIntPol(Res::PMResults,Lattice,RegionFunc::Function;eta = SO3ETA,k
     getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 end
 
+function getChiIntPol(Res::PMResults,Lattice;eta = SO3ETA,kwargs...)
+    kmax = getkMax(Res.Chi_TR[1,:],Lattice;kwargs...)
+    getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
+end
+
 function getIntersect(f1,f2,guess)
     find_zero(x->f1(x)-f2(x), guess)
 end
