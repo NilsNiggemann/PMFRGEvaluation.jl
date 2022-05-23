@@ -4,7 +4,7 @@ function rescale(Chi,NLen,eta)
     Chi ./(NLen^(2-eta))
 end
 
-function getChiIntPol(kmax::StaticArray,Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice;eta= SO3ETA)
+function getChiIntPol(kmax::StaticVector,Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice;eta= SO3ETA)
     Chik = getFlow(kmax,Chi_TR, T,Lattice)
     Chik_res = rescale(Chik,NLen,eta)
     return Dict(
@@ -18,7 +18,7 @@ function getChiIntPol(kmax::StaticArray,Chi_TR::AbstractMatrix,T::AbstractVector
     )
 end
 
-getChiIntPol(kmax::StaticArray,Res::PMResults,Lattice,eta= SO3ETA) = getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
+getChiIntPol(kmax::StaticVector,Res::PMResults,Lattice,eta= SO3ETA) = getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 
 function getChiIntPol(Chi_TR::AbstractMatrix,T::AbstractVector,NLen::Integer,Lattice,RegionFunc::Function;eta= SO3ETA,kwargs...)
     kmax = getkMax(Chi_TR[1,:],Lattice,RegionFunc;kwargs...)
@@ -30,9 +30,9 @@ function getChiIntPol(Res::PMResults,Lattice,RegionFunc::Function;eta = SO3ETA,k
     getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 end
 
-function getChiIntPol(Res::PMResults,Lattice;eta = SO3ETA,kwargs...)
+function getChiIntPol(Res::PMResults,Lattice::LatticeInfo{B,R,FT,Dim};eta = SO3ETA,kwargs...) where {B,R,FT,Dim}
     kmax = getkMax(Res.Chi_TR[1,:],Lattice;kwargs...)
-    getChiIntPol(kmax,Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
+    getChiIntPol(SVector{Dim,Float64}(kmax),Res.Chi_TR,Res.T,Res.NLen,Lattice;eta=eta)
 end
 
 function getIntersect(f1,f2,guess)
