@@ -1,4 +1,3 @@
-using Roots
 const SO3ETA = 0.035
 function rescale(Chi,NLen,eta) 
     Chi ./(NLen^(2-eta))

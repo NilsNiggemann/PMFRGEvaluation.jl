@@ -1,5 +1,5 @@
 module PMFRGEvaluation
-using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport
+using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport, Roots,Plots
 
 @reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,LaTeXStrings
 
