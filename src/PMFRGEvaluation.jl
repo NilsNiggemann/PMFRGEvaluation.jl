@@ -30,7 +30,7 @@ export getChiIntPol,getCrossingPoint
 include("PlotFunctions.jl")
 export plotgamma_T, plotgamma,plotMaxVertexFlow,VertexRplot
 
-include("H5Merge.jl")
+include("H5merge.jl")
 export h5write,h5Merge,getSourceFilesWith
 
 """Removes T points and re-computes the derivative"""
