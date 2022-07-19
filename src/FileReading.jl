@@ -23,27 +23,36 @@ function ReadPMResults_old(Filename)
 end
 
 """Fetches key from file for each group and appends results to a list"""
-function readGroupElements(File,key)
+function readGroupElements(f,key)
+    return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
+end
+function readGroupElements(File::String,key)
     h5open(File,"r") do f
-        return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
+        readGroupElements(f,key)
     end
 end
 
 function ArrayReadGroupElements(File,key)
     Data = readGroupElements(File,key)
     d = size(first(Data)) |> length
-    return cat(Data...,dims = d+1)
+    # return cat(Data...,dims = d+1)
+    catfunc(x...) = cat(x...,dims = d+1)
+    return reduce(vcat,Data)'
 end
 
-function readLastGroupElements(File,key)
+function readLastGroupElements(f,key)
+    return VectorOfArray([ Array(f[string(Group,"/",key)])[..,end] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
+end
+function readLastGroupElements(File::String,key)
     h5open(File,"r") do f
-        return VectorOfArray([ Array(f[string(Group,"/",key)])[end,..] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
+        readLastGroupElements(f,key)
     end
 end
 
-function h5keys(Filename::String)
+function h5keys(Filename::String,Group::String ="")
     h5open(Filename,"r") do f
-        return keys(f)
+        isempty(Group) && return keys(f)
+        return keys(f[Group])
     end
 end
 
@@ -158,42 +167,40 @@ endOfLastDim(A::HDF5.Dataset) = endOfLastDim(Array(A))
 
 getOnly(Filename,key) =only(unique(readGroupElements(Filename,key)))
 
-function ReadPMResults(Filename,selecter=endOfLastDim)
-    h5open(Filename,"r") do File
-        T = readGroupElements(Filename,"T")
-        Tlen = length(T)
-        # sort values to ascending order in T
-        
-        N = getOnly(Filename,"N")
-        NLen= 0
-        try
-            NLen = getOnly(Filename,"NLen")
-        catch
-            NLen = getNumberFromName(Filename,"NLen")
-        end
-        NUnique = getOnly(Filename,"NUnique")
-        #allocate correct memory
-        k1 = first(keys(File))
-        Chidims = size( selecter(File[k1*"/Chi"]))
-        gammadims = size( selecter(File[k1*"/gamma"]))
+function ReadPMResults(File,selecter=endOfLastDim)
+    T = readGroupElements(File,"T")
+    Tlen = length(T)
+    # sort values to ascending order in T
+    
+    N = getOnly(File,"N")
+    NLen = getOnly(File,"NLen")
+    NUnique = getOnly(File,"NUnique")
+    #allocate correct memory
+    k1 = first(keys(File))
+    Chidims = size( selecter(File[k1*"/Chi"]))
+    gammadims = size( selecter(File[k1*"/gamma"]))
 
-        fint_T = zeros(Tlen)
-        Chi_TR = zeros(Tlen,Chidims...)
-        gamma_TxN = zeros(Tlen,gammadims...)
-        #write to arrays
-        for (i,key) in enumerate(keys(File))
-            fint_T[i] =  mean(selecter(File[key*"/f_int"])) # read fint for last value of Lambda
-            Chi_TR[i,:] .= selecter(File[key*"/Chi"])
-            gamma_TxN[i,:,:] .= selecter(File[key*"/gamma"])
-        end
-        #sort according to T
-        keylist = sortperm(T)
-        T = T[keylist]
-        
-        fint_T = fint_T[keylist]
-        Chi_TR = Chi_TR[keylist,:]
-        gamma_TxN = gamma_TxN[keylist,:,:]
-        return Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Array(Chi_TR) ,:gamma_TxN => Array(gamma_TxN) ,:N => N ,:NLen => NLen ,:NUnique => NUnique)
+    fint_T = zeros(Tlen)
+    Chi_TR = zeros(Tlen,Chidims...)
+    gamma_TxN = zeros(Tlen,gammadims...)
+    #write to arrays
+    for (i,key) in enumerate(keys(File))
+        fint_T[i] =  mean(selecter(File[key*"/f_int"])) # read fint for last value of Lambda
+        Chi_TR[i,:] .= selecter(File[key*"/Chi"])
+        gamma_TxN[i,:,:] .= selecter(File[key*"/gamma"])
     end
+    #sort according to T
+    keylist = sortperm(T)
+    T = T[keylist]
+    
+    fint_T = fint_T[keylist]
+    Chi_TR = Chi_TR[keylist,:]
+    gamma_TxN = gamma_TxN[keylist,:,:]
+    return Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Array(Chi_TR) ,:gamma_TxN => Array(gamma_TxN) ,:N => N ,:NLen => NLen ,:NUnique => NUnique)
 end
 
+function ReadPMResults(Filename::String,selecter=endOfLastDim)
+    h5open(Filename,"r") do File
+        ReadPMResults(File,selecter)
+    end
+end
