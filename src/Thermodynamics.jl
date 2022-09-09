@@ -82,7 +82,7 @@ function PMResults(Filename;kwargs...)
 end
 
 function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!,shape = :circle,kwargs...)
-    @unpack T,f,e,s,c = Results
+    (;T,f,e,s,c )= Results
     ThermQuantities = (f,e,s,c)
     # linestyles = (:solid,:dash,:dot,:dashdot)
     # shapes = (:circle,:rect,:diamond,:cross)
@@ -108,7 +108,7 @@ function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!
 end
 
 function Thermoplots_Makie(Results,fig =Figure(resolution = (500,700));xAxis = "T",shape = :circle,kwargs...)
-    @unpack T,f,e,s,c = Results
+    (;T,f,e,s,c )= Results
     ThermQuantities = (f,e,s,c)
     # linestyles = (:solid,:dash,:dot,:dashdot)
     # shapes = (:circle,:rect,:diamond,:cross)

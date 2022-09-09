@@ -1,10 +1,10 @@
 module PMFRGEvaluation
 using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport, Roots,Plots
 
-@reexport using Parameters,HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,LaTeXStrings
+@reexport using HDF5,SpinFRGLattices,FRGLatticePlotting,StaticArrays,LaTeXStrings,HDF5Helpers
 
 export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
-@with_kw struct PMResults
+Base.@kwdef struct PMResults
     T::Vector{Float64}
     Chi_TR::Array{Float64,2}
     gamma_TxN::Array{Float64,3}
@@ -19,7 +19,7 @@ export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
 end
 
 include("FileReading.jl")
-export ReadPMResults, GetThermo,readGroupElements,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms, ArrayReadGroupElements
+export ReadPMResults, GetThermo,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms
 
 include("Thermodynamics.jl")
 export deriv, get_e, get_c, get_e, get_c, reverseTOrder,getHTSE,HTSE_keys
@@ -30,12 +30,12 @@ export getChiIntPol,getCrossingPoint
 include("PlotFunctions.jl")
 export plotgamma_T, plotgamma,plotMaxVertexFlow,VertexRplot
 
-include("H5merge.jl")
-export h5write,h5Merge,getSourceFilesWith
+include("ConsistencyCheck.jl")
+export getChilocal
 
 """Removes T points and re-computes the derivative"""
 function cutData(Results,index1,index2 = 0)
-    @unpack T,fint,f,e,s,c,Chi_TR,N,NLen,NUnique,gamma_TxN = Results
+    (;T,fint,f,e,s,c,Chi_TR,N,NLen,NUnique,gamma_TxN) = Results
     fields = deepcopy((T,fint,f,e,s,c,Chi_TR,N,NLen,NUnique,gamma_TxN))
     Names = (:T,:fint,:f,:e,:s,:c,:Chi_TR,:N,:NLen,:NUnique,:gamma_TxN)
     init = Dict(Name => field for (Name,field) in zip(Names,fields))
@@ -51,7 +51,7 @@ end
 
 """Removes T points and re-computes the derivative"""
 function cutDataAndRecompute(Results,removeinds::Vector;kwargs...)
-    @unpack T,fint,Chi_TR,N,NLen,NUnique,gamma_TxN = Results
+    (;T,fint,Chi_TR,N,NLen,NUnique,gamma_TxN) = Results
     fields = Dict(:T =>T,:fint_T => fint,:Chi_TR => Chi_TR,:N => N,:NLen => NLen,:NUnique => NUnique,:gamma_TxN => gamma_TxN)
     inds = deleteat!(collect(eachindex(T)),removeinds)
     slice(x) = x[inds,fill(:,ndims(x)-1)...] #slices array along first dim (Temperature)

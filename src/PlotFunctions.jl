@@ -8,8 +8,8 @@ function plotMaxVertexFlow(Filename,index,pl = plot(),RDim = 1,kwargs...)
     return pl
 end
 function VertexRplot!(pl,Vertex::AbstractVector,Lattice;kwargs...)
-    @unpack Basis,PairList,PairTypes = Lattice
-    @unpack refSites = Basis
+    (;Basis,PairList,PairTypes) = Lattice
+    (;refSites) = Basis
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
     norms = norm.(eachindex(PairList))
     scatter!(norms,Vertex;kwargs...)
@@ -33,14 +33,14 @@ function VertexRplot(Filename::String,index,Lattice;RDim = 2,kwargs...)
     plot!(;kwargs...)
 end
 function plotgamma_T(Results,iT,pl = plot())
-    @unpack N,gamma_TxN = Results
+    (;N,gamma_TxN) = Results
     for x in 1:NUnique
         scatter!(pl,1:N,gamma_TxN[iT,x,:],ylabel = L"\gamma",xlabel = L"N",label = nothing)
     end
 end
 
 function plotgamma(Results,x=1,Nmax=size(Results.gamma_TxN,3))
-    @unpack T,gamma_TxN = Results
+    (;T,gamma_TxN) = Results
     surface(1:Nmax,T,gamma_TxN[:,x,1:Nmax],zlabel = L"\gamma",ylabel=L"T",xlabel = L"N",label = nothing,c= colorscheme)
 end
 

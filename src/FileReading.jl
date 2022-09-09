@@ -22,40 +22,6 @@ function ReadPMResults_old(Filename)
     return (Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Chi_TR ,:gamma_TxN => gamma_TxN ,:N => N ,:NLen => NLen ,:NUnique => NUnique))
 end
 
-"""Fetches key from file for each group and appends results to a list"""
-function readGroupElements(f,key)
-    return [Array(f[string(Group,"/",key)]) for Group in keys(f)]
-end
-function readGroupElements(File::String,key)
-    h5open(File,"r") do f
-        readGroupElements(f,key)
-    end
-end
-
-function ArrayReadGroupElements(File,key)
-    Data = readGroupElements(File,key)
-    d = size(first(Data)) |> length
-    # return cat(Data...,dims = d+1)
-    catfunc(x...) = cat(x...,dims = d+1)
-    return reduce(vcat,Data)'
-end
-
-function readLastGroupElements(f,key)
-    return VectorOfArray([ Array(f[string(Group,"/",key)])[..,end] for Group in keys(f)]) #using EllipsisNotation to get index in first dimension
-end
-function readLastGroupElements(File::String,key)
-    h5open(File,"r") do f
-        readLastGroupElements(f,key)
-    end
-end
-
-function h5keys(Filename::String,Group::String ="")
-    h5open(Filename,"r") do f
-        isempty(Group) && return keys(f)
-        return keys(f[Group])
-    end
-end
-
 function getMaxVertexFlow(Filename,index,RDim = 1)
     h5open(Filename,"r") do f
         key = keys(f)[index]
@@ -102,8 +68,8 @@ end
 areParallel(v1::AbstractVector,v2::AbstractVector) =  isapprox(norm(v1)*norm(v2),abs(v1' * v2),atol = 1E-14)
 
 function getNorms(Lattice)
-    @unpack Basis,PairList,PairTypes = Lattice
-    @unpack refSites = Basis
+    (;Basis,PairList,PairTypes) = Lattice
+    (;refSites) = Basis
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
     
     norms = norm.(eachindex(PairList))
@@ -111,8 +77,8 @@ function getNorms(Lattice)
 end
 function getCorr(key,Filename,index,Lattice)
     groups = h5keys(Filename)
-    @unpack Basis,PairList,PairTypes = Lattice
-    @unpack refSites = Basis
+    (;Basis,PairList,PairTypes) = Lattice
+    (;refSites) = Basis
     # R1 = refSites[1]
     # norm(R) = dist(R1,R,Basis)
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
@@ -122,7 +88,7 @@ function getCorr(key,Filename,index,Lattice)
     return norms,corr
 end
 function getCorr(Direction,key,Filename,index,Lattice)
-    @unpack Basis,SiteList,PairList,PairTypes,pairToInequiv = Lattice
+    (;Basis,SiteList,PairList,PairTypes,pairToInequiv) = Lattice
     cartDirection = Direction' *inv(Basis.T) |> vec
     inDirection(x) = areParallel(cartDirection,x)
     # println(cartDirection)
@@ -139,8 +105,8 @@ end
 
 function getCorr_t0(Filename,index,Lattice)
     groups = h5keys(Filename)
-    @unpack Basis,PairList,PairTypes = Lattice
-    @unpack refSites = Basis
+    (;Basis,PairList,PairTypes) = Lattice
+    (;refSites) = Basis
     # R1 = refSites[1]
     # norm(R) = dist(R1,R,Basis)
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
