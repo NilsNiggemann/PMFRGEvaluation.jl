@@ -48,9 +48,25 @@ function getMaxChiTR(Filename)
     return Chi_TR
 end
 
-function getChiTRnu(Filename)
-    h5open(Filename,"r") do File
-        T = readGroupElements(Filename,"T")
+function getChiTRnu(File::HDF5.H5DataStore)
+    T = readGroupElements(File,"T")
+    keylist = sortperm(T)
+    Tlen = length(T)
+    k1 = first(keys(File))
+    Chi_nuDims = size( File[k1*"/Chi_nu"][:,:])
+
+    Chi_TRnu = zeros(Tlen,Chi_nuDims...)
+    #write to arrays
+    for (i,key) in enumerate(keys(File))
+        Chi_TRnu[i,:,:] .= File[key*"/Chi_nu"][:,:]
+    end
+    return Chi_TRnu[keylist,:,:]
+end
+
+function getChiTRnu(Filename,key = "")
+    h5open(Filename,"r") do File1
+        File = File1[key]
+        T = readGroupElements(File,"T")
         keylist = sortperm(T)
         Tlen = length(T)
         k1 = first(keys(File))

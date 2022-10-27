@@ -43,7 +43,7 @@ function get_e_Chi(Chi_TRnu,Trange,Lattice,Nnu)
     return e_Chi
 end
 
-function equalTimeChiBeta(f::Union{HDF5.Group,HDF5.File},key ="",args...)
+function equalTimeChiBeta(f::HDF5.H5DataStore,key ="",args...)
     chiRnu = f[key*"/Chi_nu"] |> read
 
     equalTimeChiBeta(chiRnu,args...)
