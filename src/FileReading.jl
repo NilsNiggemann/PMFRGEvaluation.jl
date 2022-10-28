@@ -123,8 +123,6 @@ function getCorr_t0(Filename,index,Lattice)
     groups = h5keys(Filename)
     (;Basis,PairList,PairTypes) = Lattice
     (;refSites) = Basis
-    # R1 = refSites[1]
-    # norm(R) = dist(R1,R,Basis)
     norm(i) = dist(refSites[PairTypes[i].xi],PairList[i],Basis)
     
     norms = norm.(eachindex(PairList))

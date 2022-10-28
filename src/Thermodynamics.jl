@@ -80,9 +80,15 @@ function getLambdaDim(Filename)
     @warn "Could not read Lambda convention from file"
 end
 
-function PMResults(Filename;kwargs...)
-    selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(Filename)]
-    res = ReadPMResults(Filename,selecter)
+function PMResults(Filename::AbstractString,key::AbstractString;kwargs...)
+    h5open(Filename) do f
+        return PMResults(f[key];kwargs...)
+    end
+end
+
+function PMResults(f::Union{HDF5.File,HDF5.Group};kwargs...)
+    selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(f)]
+    res = ReadPMResults(f,selecter)
     return PMResults(;GetThermo(res;kwargs...)...)
 end
 
