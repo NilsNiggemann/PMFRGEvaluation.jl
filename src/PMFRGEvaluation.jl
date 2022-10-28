@@ -33,6 +33,9 @@ export plotgamma_T, plotgamma,plotMaxVertexFlow,VertexRplot
 include("ConsistencyCheck.jl")
 export getChilocal
 
+include("EqualTimeCorrelator.jl")
+export equalTimeChiBeta,EnergyBeta,get_e_Chi
+
 """Removes T points and re-computes the derivative"""
 function cutData(Results,index1,index2 = 0)
     (;T,fint,f,e,s,c,Chi_TR,N,NLen,NUnique,gamma_TxN) = Results
