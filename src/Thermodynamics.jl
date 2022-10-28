@@ -52,7 +52,13 @@ function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.00
         c_T[iT] = get_c(f_intPol,Temp)
         s_T[iT] = (e_T[iT]-f[iT])/Temp
     end
-    return PMResults(T=T,N = N, NLen = NLen, NUnique = NUnique, Chi_TR=Chi_TR,gamma_TxN=gamma_TxN,fint=fint_T,f=f,e=e_T,c=c_T,s=s_T)
+    return (T=T,N = N, NLen = NLen, NUnique = NUnique, Chi_TR=Chi_TR,gamma_TxN=gamma_TxN,fint=fint_T,f=f,e=e_T,c=c_T,s=s_T)
+end
+
+function GetThermo(Filename;kwargs...)
+    selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(Filename)]
+    res = ReadPMResults(Filename,selecter)
+    return GetThermo(res;kwargs...)
 end
 
 function reverseTOrder(T,Arrays...)
@@ -66,19 +72,18 @@ function getLambdaDim(Filename)
     LambdaLs = length.(readGroupElements(Filename,"Lambda"))
     NUniques = readGroupElements(Filename,"NUnique")
     dims = size.(f_ints)
-    getindex.(dims,1)
-    if all(getindex.(dims,1) == LambdaLs) && all(getindex.(dims,2) == NUniques)
+    if all(getindex.(dims,1) == LambdaLs) || all(getindex.(dims,2) == NUniques)
         return 1
-    elseif all(getindex.(dims,1) == NUniques) && all(getindex.(dims,2) == LambdaLs)
+    elseif all(getindex.(dims,1) == NUniques) || all(getindex.(dims,2) == LambdaLs)
         return 2
     end
-    @error "Lambda Convention inconsistent in file"
+    @warn "Could not read Lambda convention from file"
 end
 
 function PMResults(Filename;kwargs...)
     selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(Filename)]
     res = ReadPMResults(Filename,selecter)
-    return GetThermo(res;kwargs...)
+    return PMResults(;GetThermo(res;kwargs...)...)
 end
 
 function Thermoplots(Results,pl =plot(layout = (4,1));xAxis = "T",method = plot!,shape = :circle,kwargs...)
