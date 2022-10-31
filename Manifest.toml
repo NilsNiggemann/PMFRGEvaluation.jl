@@ -2,7 +2,7 @@
 
 julia_version = "1.8.0"
 manifest_format = "2.0"
-project_hash = "766433b77c6e48becc76ce0780424ce75568a9c0"
+project_hash = "cf7713e6aa2942b15dc1f3b626bb736b1c9110ca"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -225,13 +225,13 @@ git-tree-sha1 = "74faea50c1d007c85837327f6775bea60b5492dd"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.2+2"
 
-[[deps.FRGLatticePlotting]]
-deps = ["LaTeXStrings", "Parameters", "Plots", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
-git-tree-sha1 = "fd3435c1312bafd1e5966abe4506255d71467dd1"
+[[deps.FRGLatticeEvaluation]]
+deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
+git-tree-sha1 = "7e8dfd287a889613066473598ad66bb7f789d2cb"
 repo-rev = "master"
-repo-url = "git@gitlabph.physik.fu-berlin.de:niggeni/FRGLatticePlots.git"
-uuid = "0e1bda0b-f6c0-498b-8522-61e6152bcfb4"
-version = "1.0.0"
+repo-url = "git@gitlabph.physik.fu-berlin.de:niggeni/FRGLatticeEvaluation.jl.git"
+uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
+version = "0.1.0"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
