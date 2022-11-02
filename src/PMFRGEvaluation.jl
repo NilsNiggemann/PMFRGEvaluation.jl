@@ -1,9 +1,9 @@
 module PMFRGEvaluation
-using Dierckx,SmoothingSplines,DelimitedFiles,EllipsisNotation,RecursiveArrayTools,Reexport, Roots,Plots
+using Dierckx,SmoothingSplines,RecursiveArrayTools,Reexport, Roots
 
 @reexport using HDF5,SpinFRGLattices,FRGLatticeEvaluation,StaticArrays,LaTeXStrings,HDF5Helpers
 
-export  PMResults, Thermoplots,  cutData, cutDataAndRecompute
+export  PMResults,  cutData, cutDataAndRecompute
 Base.@kwdef struct PMResults
     T::Vector{Float64}
     Chi_TR::Array{Float64,2}
@@ -26,9 +26,6 @@ export deriv, get_e, get_c, get_e, get_c, reverseTOrder,getHTSE,HTSE_keys
 
 include("FiniteSizeScaling.jl")
 export getChiIntPol,getCrossingPoint
-
-include("PlotFunctions.jl")
-export plotgamma_T, plotgamma,plotMaxVertexFlow,VertexRplot
 
 include("ConsistencyCheck.jl")
 export getChilocal
