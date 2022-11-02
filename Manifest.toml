@@ -149,7 +149,7 @@ version = "1.6.0"
 deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
 git-tree-sha1 = "e7f8f2c1cd1e912ab746872784457f332bfa508f"
 repo-rev = "master"
-repo-url = "git@gitlabph.physik.fu-berlin.de:niggeni/FRGLatticeEvaluation.jl.git"
+repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/FRGLatticeEvaluation.jl.git"
 uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
 version = "0.1.0"
 
@@ -182,7 +182,7 @@ version = "0.16.12"
 deps = ["HDF5", "Test"]
 git-tree-sha1 = "6eb03792c101d4e3279e12cf1940b76ce1c91257"
 repo-rev = "master"
-repo-url = "git@gitlabph.physik.fu-berlin.de:niggeni/HDF5Helpers.jl.git"
+repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/HDF5Helpers.jl.git"
 uuid = "2867bddc-101e-43c9-836d-7ce2d0afa337"
 version = "0.1.1"
 
@@ -444,7 +444,7 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 deps = ["Parameters", "StaticArrays", "StructArrays", "Test"]
 git-tree-sha1 = "182f9f2afcf14b0bf515f2d293cbdca5be3bfd3e"
 repo-rev = "master"
-repo-url = "git@gitlabph.physik.fu-berlin.de:niggeni/spinfrglattices.jl.git"
+repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/spinfrglattices.jl.git"
 uuid = "053fb7f8-31b7-4f68-aef8-4452b415dd8c"
 version = "0.3.12"
 
