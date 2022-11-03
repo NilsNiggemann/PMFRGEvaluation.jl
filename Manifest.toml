@@ -147,11 +147,11 @@ version = "1.6.0"
 
 [[deps.FRGLatticeEvaluation]]
 deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
-git-tree-sha1 = "f368ee5a4549161fc9c4e732194adcab67d383af"
+git-tree-sha1 = "4192e1368aec6cf7321074a85ad252f56be353d0"
 repo-rev = "master"
 repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/FRGLatticeEvaluation.jl.git"
 uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
-version = "0.1.0"
+version = "0.1.1"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -325,9 +325,9 @@ version = "0.3.20+0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "e60321e3f2616584ff98f0a4f18d98ae6f89bbb3"
+git-tree-sha1 = "f6e9dba33f9f2c44e08a020b0caf6903be540004"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "1.1.17+0"
+version = "1.1.19+0"
 
 [[deps.OrderedCollections]]
 git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
