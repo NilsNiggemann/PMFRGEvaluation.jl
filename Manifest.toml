@@ -147,7 +147,7 @@ version = "1.6.0"
 
 [[deps.FRGLatticeEvaluation]]
 deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
-git-tree-sha1 = "e7f8f2c1cd1e912ab746872784457f332bfa508f"
+git-tree-sha1 = "f368ee5a4549161fc9c4e732194adcab67d383af"
 repo-rev = "master"
 repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/FRGLatticeEvaluation.jl.git"
 uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
