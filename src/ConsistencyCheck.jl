@@ -23,10 +23,10 @@ function g(n::Integer,T,gamma::AbstractVector)
 end
 
 function getChilocal(T,gamma::AbstractVector,N = length(gamma))
-    res = 0. # where does the factor 2 come from?
-    for n in -N:N-1
-        wn = w(n,T)
-        res += T/wn * g(n,T,gamma)
-    end
-    return res
+    return sum(n -> T/w(n,T) * g(n,T,gamma),-N:N-1)
+end
+
+function wardIdentityviolation(T::Real,gamma::AbstractVector,Chi00::Real,args...)
+    chigamma = getChilocal(T,gamma,args...) 
+    return 1 - Chi00/chigamma
 end
