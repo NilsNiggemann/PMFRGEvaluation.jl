@@ -63,7 +63,7 @@ function getChiTRnu(File::HDF5.H5DataStore)
     return Chi_TRnu[keylist,:,:]
 end
 
-function getChiTRnu(Filename,key = "")
+function getChiTRnu(Filename,key = "/")
     h5open(Filename,"r") do File1
         File = File1[key]
         T = readGroupElements(File,"T")
