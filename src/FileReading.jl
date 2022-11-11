@@ -1,27 +1,3 @@
-
-function ReadPMResults_old(Filename)
-
-    T = h5read(Filename,"Trange")
-    # sort values to ascending order in T
-    keylist = sortperm(T)
-    T = T[keylist]
-
-    fint_T = mean(h5read(Filename,"fint_Tx")[keylist,:],dims=2)[:,1]
-    Chi_TR = h5read(Filename,"Chi_TR")[keylist,:]
-    gamma_TxN = h5read(Filename,"gamma_TxN")[keylist,:,:]
-    N = h5read(Filename,"N")
-    NLen= 0
-    try
-        NLen = h5read(Filename,"NLen")
-    catch
-        NLen = getNumberFromName(Filename,"NLen")
-    end
-    NUnique = h5read(Filename,"NUnique")
-    # skip values 
-   
-    return (Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Chi_TR ,:gamma_TxN => gamma_TxN ,:N => N ,:NLen => NLen ,:NUnique => NUnique))
-end
-
 function getMaxVertexFlow(Filename,index,RDim = 1)
     h5open(Filename,"r") do f
         key = keys(f)[index]
@@ -176,7 +152,8 @@ function ReadPMResults(File,selecter=endOfLastDim)
     fint_T = fint_T[keylist]
     Chi_TR = Chi_TR[keylist,:]
     gamma_TxN = gamma_TxN[keylist,:,:]
-    return Dict(:T => T ,:fint_T => fint_T ,:Chi_TR => Array(Chi_TR) ,:gamma_TxN => Array(gamma_TxN) ,:N => N ,:NLen => NLen ,:NUnique => NUnique)
+    Chi_TRnu = getChiTRnu(File)[keylist,:,:]
+    return (;N, NLen, NUnique, T ,fint_T ,Chi_TR, Chi_TRnu, gamma_TxN)
 end
 
 function ReadPMResults(Filename::String,selecter=endOfLastDim)

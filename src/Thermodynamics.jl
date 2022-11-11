@@ -21,22 +21,26 @@ function get_c(f::AbstractArray,T::AbstractArray)
     return( -T .* deriv(f,T,2))
 end
 
-function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.001,SplineDegree = 3)
+function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,SplineDegree = 3)
 
-    T,fint_T,Chi_TR,gamma_TxN,N,NLen,NUnique = getindex.(Ref(PMData),(:T,:fint_T,:Chi_TR,:gamma_TxN,:N,:NLen,:NUnique))
+   (;T,fint_T,Chi_TR,gamma_TxN,N,NLen,NUnique,Chi_TRnu) = PMData
 
-    T = T[1:skipvals:end]
-    fint_T = fint_T[1:skipvals:end]
-    Chi_TR = Chi_TR[1:skipvals:end,:]
-    gamma_TxN = gamma_TxN[1:skipvals:end,:,:]
+   T = T[1:skipvals:end]
+   fint_T = fint_T[1:skipvals:end]
+   Chi_TR = Chi_TR[1:skipvals:end,:]
+   Chi_TRnu = Chi_TRnu[1:skipvals:end,:,:]
+   gamma_TxN = gamma_TxN[1:skipvals:end,:,:]
+   
+   f_T = similar(fint_T)
+   e_T = similar(fint_T)
+   c_T = similar(fint_T)
+   s_T = similar(fint_T)
+   f = similar(fint_T)
 
-    f_T = similar(fint_T)
-    e_T = similar(fint_T)
-    c_T = similar(fint_T)
-    s_T = similar(fint_T)
-    
-    if length(T) < SplineDegree
-        return PMResults(T=T,N = N, NLen = NLen, NUnique = NUnique, Chi_TR=Chi_TR,gamma_TxN=gamma_TxN,fint=fint_T,f=fint_T,e=e_T,c=c_T,s=s_T)
+   Res = (;N, NLen, NUnique, T ,Chi_TR, Chi_TRnu, gamma_TxN , fint = fint_T,f,e=e_T,c=c_T,s=s_T)
+   
+   if length(T) < SplineDegree
+        return Res
     end
     # smooth Data for f:
     if smoothen
@@ -52,7 +56,7 @@ function GetThermo(PMData::Dict;skipvals = 1,smoothen = false,smoothParam = 0.00
         c_T[iT] = get_c(f_intPol,Temp)
         s_T[iT] = (e_T[iT]-f[iT])/Temp
     end
-    return (T=T,N = N, NLen = NLen, NUnique = NUnique, Chi_TR=Chi_TR,gamma_TxN=gamma_TxN,fint=fint_T,f=f,e=e_T,c=c_T,s=s_T)
+    return Res
 end
 
 function GetThermo(Filename;kwargs...)
@@ -95,5 +99,5 @@ end
 function PMResults(f::Union{HDF5.File,HDF5.Group};kwargs...)
     selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(f)]
     res = ReadPMResults(f,selecter)
-    return PMResults(;GetThermo(res;kwargs...)...)
+    return GetThermo(res;kwargs...)
 end
