@@ -15,7 +15,7 @@ include("FiniteSizeScaling.jl")
 export getChiIntPol,getCrossingPoint
 
 include("ConsistencyCheck.jl")
-export getChilocal
+export getChilocal,wardIdentityviolation
 
 include("EqualTimeCorrelator.jl")
 export equalTimeChiBeta,EnergyBeta,get_e_Chi

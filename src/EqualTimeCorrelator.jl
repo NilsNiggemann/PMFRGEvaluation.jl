@@ -49,7 +49,7 @@ function equalTimeChiBeta(f::HDF5.H5DataStore,key ="",args...)
     equalTimeChiBeta(chiRnu,args...)
 end
 
-function equalTimeChiBeta(Filename::AbstractString,key = "",args...)
+function equalTimeChiBeta(Filename::AbstractString,key = "/",args...)
     h5open(Filename) do f
         equalTimeChiBeta(f,key,args...)
     end
