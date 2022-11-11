@@ -38,7 +38,7 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
    f = similar(fint_T)
 
    Res = (;N, NLen, NUnique, T ,Chi_TR, Chi_TRnu, gamma_TxN , fint = fint_T,f,e=e_T,c=c_T,s=s_T)
-   
+
    if length(T) < SplineDegree
         return Res
     end
@@ -59,7 +59,7 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
     return Res
 end
 
-function GetThermo(Filename;kwargs...)
+function GetThermo(Filename::AbstractString;kwargs...)
     selecter = (endOfFirstDim,endOfLastDim)[getLambdaDim(Filename)]
     res = ReadPMResults(Filename,selecter)
     return GetThermo(res;kwargs...)
