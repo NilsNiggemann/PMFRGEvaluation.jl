@@ -1,0 +1,2 @@
+# PMFRGEvaluation.jl
+This package contains helper functions regarding the evaluation of PMFRG data. For examples, please refer to the README of [`PMFRG.jl`](https://github.com/NilsNiggemann/PMFRG.jl)).
