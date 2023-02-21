@@ -161,3 +161,63 @@ function ReadPMResults(Filename::String,selecter=endOfLastDim)
         ReadPMResults(File,selecter)
     end
 end
+
+function getNumberFromName(Name,subName)
+    res_string = split(Name,subName)[end]
+    for i in length(res_string):-1:1
+        N = tryparse(Int,res_string[1:i])
+        if N !== nothing
+            return N
+        end
+    end
+    error("Could not get ", subName, "from string ",Name)
+end
+
+using SpinFRGLattices:convertSusceptibilityToSpinS
+
+
+"""Read all results from file and wrap them in a named tuple for convenience. Also creates interpolations for thermodynamic observables and fourier transforms of the susceptibility."""
+function AllPMResults(filename,Lattice::LatticeInfo)
+    allkeys = h5keys(filename,1)
+    function read(key)
+        value = readGroupElements(filename,key)
+        allequal(value) && return only(unique!(Array(value)))
+        return value
+    end
+    allRes = Dict([Symbol(k)=>read(k) for k in allkeys])
+    fint = mean.(last.(allRes[:f_int]))
+    
+    System = Lattice.System
+    Name = allRes[:Name]
+    M = occursin("2S_",Name) ? getNumberFromName(Name,"2S_") : 1
+    Spin = M/2
+    
+    Thermos = getThermoIntPol(allRes[:T],fint,M)
+
+    Chi_TR_12 = Array.(endOfLastDim.(allRes[:Chi]) )
+    Chi_TR = convertSusceptibilityToSpinS.(Chi_TR_12,Ref(Spin),Ref(System.OnsitePairs))
+
+    @assert length(Chi_TR) == length(allRes[:T]) "Could not find a susceptibility for every temperature"
+    u = only(unique!(length.(Chi_TR)))
+    @assert (u == System.Npairs) "number of pairs does not match: $u vs. $(System.Npairs) This means that you are likely trying to use the wrong geometry for your data!"
+    @assert allRes[:NUnique] == System.NUnique "NUnique incompatible with geometry"
+
+    Chi_Tq = getFourier.(Chi_TR,Ref(Lattice))
+    T = allRes[:T]
+    ChiT_Rnu = allRes[:Chi_nu]
+
+    Sij_TR = equalTimeChiBeta.(ChiT_Rnu) .*T
+    Sij_TR = convertSusceptibilityToSpinS!.(Sij_TR,Ref(Spin),Ref(System.OnsitePairs))
+    S_Tq = getFourier.(Sij_TR,Ref(Lattice))
+    
+    gamma = endOfLastDim.(allRes[:gamma])
+    @inline Δ(x=1,M_sum = 1000) = [wardIdentityviolation(Ti,gammai[x,:],Chi_R[System.OnsitePairs[x]],M_sum) for (Ti,gammai,Chi_R) in zip(T,gamma,Chi_TR_12)]
+    delete!(allRes,(:Chi,:Npairs,:NUnique,))
+    return (;allRes..., Thermos...,Spin,Lattice,Chi_TR,Chi_Tq,Δ,Sij_TR,S_Tq)
+end
+
+function AllPMResults(filenames::AbstractArray,geometryGenerator,Module)
+    NLens = [getOnly(f,"NLen") for f in filenames]
+    Lattices = Dict([NLen => LatticeInfo(geometryGenerator(NLen),Module) for NLen in unique(NLens)])
+    [AllPMResults(f,Lattices[NLen]) for (NLen,f) in zip(NLens,filenames)]
+end

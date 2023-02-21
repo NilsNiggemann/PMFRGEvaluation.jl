@@ -39,7 +39,7 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
 
    Res = (;N, NLen, NUnique, T ,Chi_TR, Chi_TRnu, gamma_TxN , fint = fint_T,f,e=e_T,c=c_T,s=s_T)
 
-   if length(T) < SplineDegree
+    if length(T) < SplineDegree
         return Res
     end
     # smooth Data for f:
@@ -57,6 +57,22 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
         s_T[iT] = (e_T[iT]-f[iT])/Temp
     end
     return Res
+end
+
+function getThermoIntPol(Temps,fint_T,M=1;SplineDegree = min(3,length(fint_T)-1))
+    if SplineDegree < 1
+        return (zero,zero,zero,zero)
+    end
+
+    f_T = -Temps*log(M+1)+fint_T
+    f_spl = Spline1D(Temps, f_T, k=SplineDegree,bc="extrapolate")
+    @inline f(T) = f_spl(T)
+    @inline e(T) = get_e(f_spl,T)
+    @inline c(T) = get_c(f_spl,T)
+    @inline s(T) = (e(T)-f(T))/T
+
+    return (;f,e,c,s)
+
 end
 
 function GetThermo(Filename::AbstractString;kwargs...)

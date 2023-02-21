@@ -6,7 +6,7 @@ using Dierckx,SmoothingSplines,RecursiveArrayTools,Reexport, Roots
 export  PMResults,  cutData, cutDataAndRecompute
 
 include("FileReading.jl")
-export ReadPMResults, GetThermo,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms
+export ReadPMResults, GetThermo,readLastGroupElements,getMaxVertexFlow,getMaxChiTR,getChiTRnu,h5keys,getCorr,getNorms,AllPMResults
 
 include("Thermodynamics.jl")
 export deriv, get_e, get_c, get_e, get_c, reverseTOrder,getHTSE,HTSE_keys
