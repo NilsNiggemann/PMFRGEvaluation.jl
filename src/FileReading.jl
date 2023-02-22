@@ -175,7 +175,7 @@ end
 
 
 """Read all results from file and wrap them in a named tuple for convenience. Also creates interpolations for thermodynamic observables and fourier transforms of the susceptibility."""
-function AllPMResults(filename,Lattice::LatticeInfo)
+function AllPMResults(filename,Lattice::AbstractLattice)
     allkeys = h5keys(filename,1)
     T = readGroupElements(filename,"T")
     order = sortperm(T)
@@ -189,8 +189,13 @@ function AllPMResults(filename,Lattice::LatticeInfo)
 
     fint = mean.(last.(allRes[:f_int]))
     System = Lattice.System
-    Name = allRes[:Name]
-    M = occursin("2S_",Name) ? getNumberFromName(Name,"2S_") : 1
+    M = 
+    if haskey(allRes,:Name) && occursin("2S_",Name) 
+        Name = allRes[:Name]
+        getNumberFromName(Name,"2S_")
+        else
+            1
+    end
     Spin = M/2
     
     Thermos = getThermoIntPol(allRes[:T],fint,M)
@@ -216,8 +221,19 @@ function AllPMResults(filename,Lattice::LatticeInfo)
     return (;allRes..., Thermos...,Spin,Lattice,Chi_TR,Chi_Tq,Δ,Sij_TR,S_Tq)
 end
 
-function AllPMResults(filenames::AbstractArray,geometryGenerator,Module)
+function AllPMResults(filename::AbstractString,LatticeGenerator::Function)
+    NLen = getOnly(filename,"NLen")
+    Lattice = LatticeGenerator(NLen)
+    AllPMResults(filename,Lattice)
+end
+
+function AllPMResults(filenames::AbstractArray,LatticeGenerator::Function)
     NLens = [getOnly(f,"NLen") for f in filenames]
-    Lattices = Dict([NLen => LatticeInfo(geometryGenerator(NLen),Module) for NLen in unique(NLens)])
+    Lattices = Dict([NLen => LatticeGenerator(NLen) for NLen in unique(NLens)])
     [AllPMResults(f,Lattices[NLen]) for (NLen,f) in zip(NLens,filenames)]
+end
+
+function AllPMResults(filenames::AbstractArray,geometryGenerator::Function,Module::Function)
+    LatticeGenerator(NLen) = LatticeInfo(geometryGenerator(NLen),Module)
+    AllPMResults(filenames,LatticeGenerator)
 end
