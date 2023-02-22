@@ -173,20 +173,21 @@ function getNumberFromName(Name,subName)
     error("Could not get ", subName, "from string ",Name)
 end
 
-using SpinFRGLattices:convertSusceptibilityToSpinS
-
 
 """Read all results from file and wrap them in a named tuple for convenience. Also creates interpolations for thermodynamic observables and fourier transforms of the susceptibility."""
 function AllPMResults(filename,Lattice::LatticeInfo)
     allkeys = h5keys(filename,1)
+    T = readGroupElements(filename,"T")
+    order = sortperm(T)
+    T .= T[order]
     function read(key)
         value = readGroupElements(filename,key)
         allequal(value) && return only(unique!(Array(value)))
-        return value
+        return value[order]
     end
     allRes = Dict([Symbol(k)=>read(k) for k in allkeys])
+
     fint = mean.(last.(allRes[:f_int]))
-    
     System = Lattice.System
     Name = allRes[:Name]
     M = occursin("2S_",Name) ? getNumberFromName(Name,"2S_") : 1
@@ -203,7 +204,6 @@ function AllPMResults(filename,Lattice::LatticeInfo)
     @assert allRes[:NUnique] == System.NUnique "NUnique incompatible with geometry"
 
     Chi_Tq = getFourier.(Chi_TR,Ref(Lattice))
-    T = allRes[:T]
     ChiT_Rnu = allRes[:Chi_nu]
 
     Sij_TR = equalTimeChiBeta.(ChiT_Rnu) .*T

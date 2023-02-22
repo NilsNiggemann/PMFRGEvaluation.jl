@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.0"
+julia_version = "1.8.2"
 manifest_format = "2.0"
 project_hash = "6b1ee03b4cf2cc2ccc3b7561086ced772f7ffb80"
 
@@ -123,9 +123,7 @@ version = "1.6.0"
 
 [[deps.FRGLatticeEvaluation]]
 deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
-git-tree-sha1 = "f28880439aa803e9893c3d9d1038d6a1bc240b9c"
-repo-rev = "master"
-repo-url = "git@gitlabph.physik.fu-berlin.de:julia-frg/FRGLatticeEvaluation.jl.git"
+git-tree-sha1 = "4c69c6590591e2088f0692f8327c6f5b8387fb08"
 uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
 version = "0.1.2"
 
@@ -490,7 +488,7 @@ version = "1.10.0"
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
-version = "1.10.0"
+version = "1.10.1"
 
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]

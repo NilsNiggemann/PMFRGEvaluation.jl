@@ -63,14 +63,12 @@ function getThermoIntPol(Temps,fint_T,M=1;SplineDegree = min(3,length(fint_T)-1)
     if SplineDegree < 1
         return (zero,zero,zero,zero)
     end
-
-    f_T = -Temps*log(M+1)+fint_T
+    f_T = -Temps*log(2)+M*fint_T
     f_spl = Spline1D(Temps, f_T, k=SplineDegree,bc="extrapolate")
     @inline f(T) = f_spl(T)
     @inline e(T) = get_e(f_spl,T)
     @inline c(T) = get_c(f_spl,T)
     @inline s(T) = (e(T)-f(T))/T
-
     return (;f,e,c,s)
 
 end
