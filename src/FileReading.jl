@@ -190,11 +190,10 @@ function AllPMResults(filename,Lattice::AbstractLattice)
     fint = mean.(last.(allRes[:f_int]))
     System = Lattice.System
     M = 
-    if haskey(allRes,:Name) && occursin("2S_",Name) 
-        Name = allRes[:Name]
-        getNumberFromName(Name,"2S_")
-        else
-            1
+    if haskey(allRes,:Name) && occursin("2S_",allRes[:Name]) 
+        getNumberFromName( allRes[:Name],"2S_")
+    else
+        1
     end
     Spin = M/2
     
