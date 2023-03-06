@@ -187,7 +187,7 @@ function AllPMResults(filename,Lattice::AbstractLattice)
     end
     allRes = Dict([Symbol(k)=>read(k) for k in allkeys])
 
-    fint = mean.(last.(allRes[:f_int]))
+    fint = mean.(endOfLastDim.(allRes[:f_int]))
     System = Lattice.System
     M = 
     if haskey(allRes,:Name) && occursin("2S_",allRes[:Name]) 

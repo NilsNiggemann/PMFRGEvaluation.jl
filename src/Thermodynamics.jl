@@ -30,15 +30,15 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
    Chi_TR = Chi_TR[1:skipvals:end,:]
    Chi_TRnu = Chi_TRnu[1:skipvals:end,:,:]
    gamma_TxN = gamma_TxN[1:skipvals:end,:,:]
-   
    f_T = similar(fint_T)
    e_T = similar(fint_T)
    c_T = similar(fint_T)
    s_T = similar(fint_T)
    f = similar(fint_T)
 
-   Res = (;N, NLen, NUnique, T ,Chi_TR, Chi_TRnu, gamma_TxN , fint = fint_T,f,e=e_T,c=c_T,s=s_T)
 
+   Res = (;N, NLen, NUnique, T ,Chi_TR, Chi_TRnu, gamma_TxN , fint = fint_T,f,e=e_T,c=c_T,s=s_T)
+   
     if length(T) < SplineDegree
         return Res
     end
@@ -47,7 +47,9 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
         spl = fit(SmoothingSpline, T, fint_T, smoothParam) # smoothing parameter low means less smoothing
         fint_T = SmoothingSplines.predict(spl,T) # fitted vector
     end
-    f = -T*log(2) +fint_T
+    Res.f .= -T*log(2) +fint_T
+   println(Res.f[1])
+
     # f_intPol = intpol(fint_T,T)
     f_intPol = Spline1D(T, f, k=SplineDegree,bc="extrapolate") 
     # return f_intPol
@@ -56,14 +58,17 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
         c_T[iT] = get_c(f_intPol,Temp)
         s_T[iT] = (e_T[iT]-f[iT])/Temp
     end
+
     return Res
 end
 
-function getThermoIntPol(Temps,fint_T,M=1;SplineDegree = min(3,length(fint_T)-1))
+function getThermoIntPol(Temps,fint_T,M=1;SplineDegree = min(3,length(Temps)-1))
     if SplineDegree < 1
         return (zero,zero,zero,zero)
     end
+    # @info "Using SplineDegree = $SplineDegree" Temps M fint_T
     f_T = -Temps*log(2)+M*fint_T
+    println(f_T[1])
     f_spl = Spline1D(Temps, f_T, k=SplineDegree,bc="extrapolate")
     @inline f(T) = f_spl(T)
     @inline e(T) = get_e(f_spl,T)

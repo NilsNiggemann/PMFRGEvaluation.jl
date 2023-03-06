@@ -47,6 +47,8 @@ function getCrossingPoint(guess,args...)
             end
         end
     end
-    meanInt = mean(allIntersect)
-    deltaI = maximum(allIntersect) - minimum(allIntersect)
+    Cross = mean(allIntersect)
+    maxErr = maximum(allIntersect) - minimum(allIntersect)
+    stderr = std(allIntersect)
+    return (;Cross,maxErr,stderr)
 end
