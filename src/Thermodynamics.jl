@@ -48,7 +48,6 @@ function GetThermo(PMData;skipvals = 1,smoothen = false,smoothParam = 0.001,Spli
         fint_T = SmoothingSplines.predict(spl,T) # fitted vector
     end
     Res.f .= -T*log(2) +fint_T
-   println(Res.f[1])
 
     # f_intPol = intpol(fint_T,T)
     f_intPol = Spline1D(T, f, k=SplineDegree,bc="extrapolate") 
@@ -68,7 +67,6 @@ function getThermoIntPol(Temps,fint_T,M=1;SplineDegree = min(3,length(Temps)-1))
     end
     # @info "Using SplineDegree = $SplineDegree" Temps M fint_T
     f_T = -Temps*log(2)+M*fint_T
-    println(f_T[1])
     f_spl = Spline1D(Temps, f_T, k=SplineDegree,bc="extrapolate")
     @inline f(T) = f_spl(T)
     @inline e(T) = get_e(f_spl,T)

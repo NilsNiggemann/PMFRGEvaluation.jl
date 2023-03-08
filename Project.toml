@@ -1,7 +1,7 @@
 name = "PMFRGEvaluation"
 uuid = "12f9d3e0-c7ac-4982-a146-f6f67cbda763"
 authors = ["Nils Niggemann <nils.niggemann@fu-berlin.de>"]
-version = "1.0.7"
+version = "1.0.8"
 
 [deps]
 Dierckx = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
