@@ -123,9 +123,9 @@ version = "1.6.0"
 
 [[deps.FRGLatticeEvaluation]]
 deps = ["LaTeXStrings", "SLEEFPirates", "SpinFRGLattices", "StaticArrays", "Test"]
-git-tree-sha1 = "044db989b9150246f8f8de23e119a7307c84a88d"
+git-tree-sha1 = "23c04a71c5d1032e5fcca7e0f1a1ee94d2f08f99"
 uuid = "a44b592b-45f7-4b02-a4df-e53b23f0d903"
-version = "0.1.3"
+version = "0.1.4"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -354,9 +354,9 @@ version = "1.3.0"
 
 [[deps.Roots]]
 deps = ["ChainRulesCore", "CommonSolve", "Printf", "Setfield"]
-git-tree-sha1 = "9c2f5d3768804ed465f0c51540c6074ae9f63900"
+git-tree-sha1 = "b45deea4566988994ebb8fb80aa438a295995a6e"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "2.0.9"
+version = "2.0.10"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -508,9 +508,9 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [[deps.VectorizationBase]]
 deps = ["ArrayInterface", "CPUSummary", "HostCPUFeatures", "IfElse", "LayoutPointers", "Libdl", "LinearAlgebra", "SIMDTypes", "Static", "StaticArrayInterface"]
-git-tree-sha1 = "952ba509a61d1ebb26381ac459c5c6e838ed43c4"
+git-tree-sha1 = "a2d69abfc8b9b71a5db110f9757d0cd4a27877c0"
 uuid = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
-version = "0.21.60"
+version = "0.21.61"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
