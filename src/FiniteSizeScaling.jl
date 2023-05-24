@@ -38,7 +38,7 @@ function getIntersect(f1,f2,guess)
     find_zero(x->f1(x)-f2(x), guess)
 end
 
-function getCrossingPoint(guess,args...)
+function getCrossingPoint(guess,args)
     allIntersect = Float64[]
     for I in args
         for J in args
@@ -52,3 +52,5 @@ function getCrossingPoint(guess,args...)
     stderr = std(allIntersect)
     return (;Cross,maxErr,stderr)
 end
+
+getCrossingPoint(guess,args...) = getCrossingPoint(guess,[args...])
