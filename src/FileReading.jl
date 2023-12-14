@@ -152,7 +152,7 @@ function ReadPMResults(File,selecter=endOfLastDim)
     fint_T = fint_T[keylist]
     Chi_TR = Chi_TR[keylist,:]
     gamma_TxN = gamma_TxN[keylist,:,:]
-    Chi_TRnu = getChiTRnu(File)[keylist,:,:]
+    Chi_TRnu = getChiTRnu(File) #is already sorted
     return (;N, NLen, NUnique, T ,fint_T ,Chi_TR, Chi_TRnu, gamma_TxN)
 end
 
